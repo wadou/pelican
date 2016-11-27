@@ -49,7 +49,8 @@ CONF = {
     'github_pages_branch': _GITHUB_PAGES_BRANCHES['project'],
     'default_pagination': 10,
     'siteurl': '',
-    'lang': locale.getlocale()[0].split('_')[0],
+    #'lang': locale.getlocale()[0].split('_')[0],
+    'lang': 'Chinese',
     'timezone': _DEFAULT_TIMEZONE
 }
 
