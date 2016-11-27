@@ -106,7 +106,7 @@ DEFAULT_CONFIG = {
             'markdown.extensions.codehilite': {'css_class': 'highlight'},
             'markdown.extensions.extra': {},
             'markdown.extensions.meta': {},
-			'markdown.extensions.toc': {},
+            'markdown.extensions.toc': {},
         },
         'output_format': 'html5',
     },
