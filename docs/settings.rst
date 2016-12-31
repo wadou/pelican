@@ -81,9 +81,11 @@ Basic settings
 
       OUTPUT_RETENTION = [".hg", ".git", ".bzr"]
 
-.. data:: JINJA_EXTENSIONS = []
+.. data:: JINJA_ENVIRONMENT = {'trim_blocks': True, 'lstrip_blocks': True}
 
-   A list of any Jinja2 extensions you want to use.
+   A dictionary of custom Jinja2 environment variables you want to use. This
+   also includes a list of extensions you may want to include.
+   See `Jinja Environment documentation`_.
 
 .. data:: JINJA_FILTERS = {}
 
@@ -127,10 +129,10 @@ Basic settings
 
 .. data:: MARKDOWN = {...}
 
-   Extra configuration settings for the Markdown processor. Refer to the Python 
-   Markdown documentation's `Options section 
-   <http://pythonhosted.org/Markdown/reference.html#markdown>`_ for a complete 
-   list of supported options. The ``extensions`` option will be automatically 
+   Extra configuration settings for the Markdown processor. Refer to the Python
+   Markdown documentation's `Options section
+   <http://pythonhosted.org/Markdown/reference.html#markdown>`_ for a complete
+   list of supported options. The ``extensions`` option will be automatically
    computed from the ``extension_configs`` option.
 
    Defaults to::
@@ -145,7 +147,7 @@ Basic settings
         }
 
    .. Note::
-      The dictionary defined in your settings file will update this default 
+      The dictionary defined in your settings file will update this default
       one.
 
 .. data:: OUTPUT_PATH = 'output/'
@@ -354,10 +356,10 @@ Example usage::
    PAGE_URL = 'pages/{slug}/'
    PAGE_SAVE_AS = 'pages/{slug}/index.html'
 
-This would save your articles into something like 
+This would save your articles into something like
 ``/posts/2011/Aug/07/sample-post/index.html``,
 save your pages into ``/pages/about/index.html``, and render them available at
-URLs of ``/posts/2011/Aug/07/sample-post/`` and ``/pages/about/``, 
+URLs of ``/posts/2011/Aug/07/sample-post/`` and ``/pages/about/``,
 respectively.
 
 .. data:: RELATIVE_URLS = False
@@ -521,8 +523,8 @@ posts for the month at ``posts/2011/Aug/index.html``.
     arrive at an appropriate archive of posts, without having to specify
     a page name.
 
-``DIRECT_TEMPLATES`` work a bit differently than noted above. Only the 
-``_SAVE_AS`` settings are available, but it is available for any direct 
+``DIRECT_TEMPLATES`` work a bit differently than noted above. Only the
+``_SAVE_AS`` settings are available, but it is available for any direct
 template.
 
 .. data:: ARCHIVES_SAVE_AS = 'archives.html'
@@ -568,8 +570,8 @@ Time and Date
 
    The timezone used in the date information, to generate Atom and RSS feeds.
 
-   If no timezone is defined, UTC is assumed. This means that the generated 
-   Atom and RSS feeds will contain incorrect date information if your locale is 
+   If no timezone is defined, UTC is assumed. This means that the generated
+   Atom and RSS feeds will contain incorrect date information if your locale is
    not UTC.
 
    Pelican issues a warning in case this setting is not defined, as it was not
@@ -598,13 +600,13 @@ Time and Date
 
    If no ``DATE_FORMATS`` are set, Pelican will fall back to
    ``DEFAULT_DATE_FORMAT``. If you need to maintain multiple languages with
-   different date formats, you can set the ``DATE_FORMATS`` dictionary using 
+   different date formats, you can set the ``DATE_FORMATS`` dictionary using
    the language name (``lang`` metadata in your post content) as the key.
 
-   In addition to the standard C89 strftime format codes that are listed in 
-   `Python strftime documentation`_, you can use the ``-`` character between 
-   ``%`` and the format character to remove any leading zeros. For example, 
-   ``%d/%m/%Y`` will output ``01/01/2014`` whereas ``%-d/%-m/%Y`` will result 
+   In addition to the standard C89 strftime format codes that are listed in
+   `Python strftime documentation`_, you can use the ``-`` character between
+   ``%`` and the format character to remove any leading zeros. For example,
+   ``%d/%m/%Y`` will output ``01/01/2014`` whereas ``%-d/%-m/%Y`` will result
    in ``1/1/2014``.
 
    .. parsed-literal::
@@ -614,8 +616,8 @@ Time and Date
            'jp': '%Y-%m-%d(%a)',
        }
 
-   It is also possible to set different locale settings for each language by 
-   using a ``(locale, format)`` tuple as a dictionary value which will override 
+   It is also possible to set different locale settings for each language by
+   using a ``(locale, format)`` tuple as a dictionary value which will override
    the ``LOCALE`` setting:
 
    .. parsed-literal::
@@ -634,8 +636,8 @@ Time and Date
 
 .. data:: LOCALE
 
-   Change the locale [#]_. A list of locales can be provided here or a single 
-   string representing one locale.  When providing a list, all the locales will 
+   Change the locale [#]_. A list of locales can be provided here or a single
+   string representing one locale.  When providing a list, all the locales will
    be tried until one works.
 
    You can set locale to further control date format:
@@ -646,7 +648,7 @@ Time and Date
                  'en_US', 'ja_JP'   # On Unix/Linux
       )
 
-   For a list of available locales refer to `locales on Windows`_  or on 
+   For a list of available locales refer to `locales on Windows`_  or on
    Unix/Linux, use the ``locale -a`` command; see manpage
    `locale(1)`_ for more information.
 
@@ -670,8 +672,8 @@ Template pages
    A mapping containing template pages that will be rendered with the blog
    entries. See :ref:`template_pages`.
 
-   If you want to generate custom pages besides your blog entries, you can 
-   point any Jinja2 template file with a path pointing to the file and the 
+   If you want to generate custom pages besides your blog entries, you can
+   point any Jinja2 template file with a path pointing to the file and the
    destination path for the generated file.
 
    For instance, if you have a blog with three static pages — a list of books,
@@ -838,6 +840,12 @@ the ``TAG_FEED_ATOM`` and ``TAG_FEED_RSS`` settings:
 
    Maximum number of items allowed in a feed. Feed item quantity is
    unrestricted by default.
+
+.. data:: RSS_FEED_SUMMARY_ONLY = True
+
+   Only include item summaries in the ``description`` tag of RSS feeds. If set
+   to ``False``, the full content will be included instead. This setting
+   doesn't affect Atom feeds, only RSS ones.
 
 If you don't want to generate some or any of these feeds, set the above variables to ``None``.
 
@@ -1117,11 +1125,13 @@ For example::
    [(logging.WARN, 'Empty alt attribute for image %s in %s')]
 
 .. Warning::
-   Silencing messages by templates is a dangerous feature. It is possible to 
-   unintentionally filter out multiple message types with the same template 
+   Silencing messages by templates is a dangerous feature. It is possible to
+   unintentionally filter out multiple message types with the same template
    (including messages from future Pelican versions). Proceed with caution.
 
-Note: This option does nothing ``--debug`` is passed.
+.. note::
+
+    This option does nothing if ``--debug`` is passed.
 
 .. _reading_only_modified_content:
 
@@ -1172,8 +1182,8 @@ can be invoked by passing the ``--archive`` flag).
 
 The cache files are Python pickles, so they may not be readable by
 different versions of Python as the pickle format often changes. If
-such an error is encountered, it is caught and the cache file is 
-rebuilt automatically in the new format. The cache files will also be 
+such an error is encountered, it is caught and the cache file is
+rebuilt automatically in the new format. The cache files will also be
 rebuilt after the ``GZIP_CACHE`` setting has been changed.
 
 The ``--ignore-cache`` command-line option is useful when the
@@ -1202,7 +1212,8 @@ desired files as output paths in the ``WRITE_SELECTED`` list,
 **only** those files will be written. This list can be also specified
 on the command line using the ``--write-selected`` option, which
 accepts a comma-separated list of output file paths. By default this
-list is empty, so all output is written.
+list is empty, so all output is written. See :ref:`site_generation` for
+more details.
 
 
 Example settings
@@ -1213,4 +1224,5 @@ Example settings
 
 
 .. _Jinja custom filters documentation: http://jinja.pocoo.org/docs/api/#custom-filters
+.. _Jinja Environment documentation: http://jinja.pocoo.org/docs/dev/api/#jinja2.Environment
 .. _Docutils Configuration: http://docutils.sourceforge.net/docs/user/config.html
